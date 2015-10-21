@@ -14,13 +14,14 @@ BasicGame.Game.prototype = {
     this.load.spritesheet( 'greenEnemy', "<%= image_path 'enemy.png' %>", 32, 32 );
     this.load.spritesheet( 'whiteEnemy', "<%= image_path 'shooting-enemy.png' %>", 32, 32 );
     this.load.spritesheet( 'boss', "<%= image_path 'boss.png' %>", 93, 75 );
+
+    // this.load.spritesheet( 'greenEnemy', "<%= image_path 'mike.png' %>", 42, 32 );
+    // this.load.spritesheet( 'whiteEnemy', "<%= image_path 'jack.png' %>", 42, 32 );
+    // this.load.spritesheet( 'boss', "<%= image_path 'joel.png' %>", 93, 75);
     this.load.spritesheet( 'explosion', "<%= image_path 'explosion.png' %>", 32, 32 );
     this.load.spritesheet( 'player', "<%= image_path 'player.png' %>", 64, 64 );
     
-    // this.load.spritesheet( 'greenEnemy', "<%= image_path 'mike.png' %>", 42, 32 );
-    // this.load.spritesheet( 'whiteEnemy', "<%= image_path 'jack.png' %>", 42, 32 );
-  },// this.load.spritesheet( 'bigBoss', "<%= image_path 'joel.png' %>", 93, 75);
-
+  },
   create: function () {
 
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -90,6 +91,8 @@ BasicGame.Game.prototype = {
     this.enemyPool.forEach( function ( enemy ) {
       enemy.animations.add( 'fly', [ 0, 1, 2 ], 20, true );
       enemy.animations.add( 'hit', [ 3, 1, 3, 2 ], 20, false );
+      // enemy.animations.add( 'fly', [ 0 ], 20, true );
+      // enemy.animations.add( 'hit', [ 1, 0, 1, 0 ], 20, false );
       enemy.events.onAnimationComplete.add( function ( e ) {
         e.play( 'fly' );
       }, this );
@@ -110,6 +113,8 @@ BasicGame.Game.prototype = {
     this.shooterPool.forEach( function ( enemy ) {
       enemy.animations.add( 'fly', [ 0, 1, 2 ], 20, true );
       enemy.animations.add( 'hit', [ 3, 1, 3, 2 ], 20, false );
+      // enemy.animations.add( 'fly', [ 0 ], 20, true );
+      // enemy.animations.add( 'hit', [ 1, 0, 1, 0 ], 20, false );
       enemy.events.onAnimationComplete.add( function ( e ) {
         e.play( 'fly' );
       }, this );
@@ -132,6 +137,8 @@ BasicGame.Game.prototype = {
     this.bossPool.forEach( function ( enemy ) {
       enemy.animations.add( 'fly', [ 0, 1, 2 ], 20, true );
       enemy.animations.add( 'hit', [ 3, 1, 3, 2 ], 20, false );
+      // enemy.animations.add( 'fly', [ 0 ], 20, true );
+      // enemy.animations.add( 'hit', [ 2, 1, 2, 1 ], 20, false );
       enemy.events.onAnimationComplete.add( function ( e ) {
         e.play( 'fly' );
       }, this );
@@ -242,7 +249,13 @@ BasicGame.Game.prototype = {
     this.physics.arcade.overlap( this.player, this.enemyBulletPool, this.playerHit, null, this );
     // Check player collision with powerup
     this.physics.arcade.overlap( this.player, this.powerUpPool, this.playerPowerUp, null, this );
-
+    if ( this.bossTime === false ) {
+      // Check player bullet collision with boss
+      this.physics.arcade.overlap( this.bulletPool, this.bossPool, this.enemyHit, null, this );
+      // Check collision between boss and player
+      this.physics.arcade.overlap( this.player, this.bossPool, this.playerHit, null, this );
+    };
+    
   },
 
   spawnEnemies: function () {
@@ -353,7 +366,7 @@ BasicGame.Game.prototype = {
                         });
       this.returnText.anchor.setTo( 0.5, 0.5 );
       this.showReturn = false; 
-    }
+    };
     // BOSS DELAY CODE
     var bossXVelocity = 200;
     if ( this.bossTime && this.boss.y > 80 ){
@@ -364,7 +377,7 @@ BasicGame.Game.prototype = {
       this.boss.body.bounce.x = 1;
       this.boss.body.collideWorldBounds = true;
 
-    }
+    };
 
   },
 
@@ -431,6 +444,28 @@ BasicGame.Game.prototype = {
         enemy.nextShotAt = this.time.now + enemyBulletDelay;
       }
     }, this );
+    var bossHealth = 300;
+    var enemyBulletVelocity = 150;
+    if ( this.bossTime === false && this.boss.alive && this.boss.nextShotAt < this.time.now && this.enemyBulletPool.countDead() >= 10 ) {
+      this.boss.nextShotAt = this.time.now + Phaser.Timer.SECOND;
+
+      for ( var i = 0; i < 3; i++) {
+        var leftBullet = this.enemyBulletPool.getFirstExists( false );
+        leftBullet.reset( this.boss.x - 5 - i * 5, this.boss.y + 20 );
+        var rightBullet = this.enemyBulletPool.getFirstExists( false );
+        rightBullet.reset( this.boss.x + 5 + i * 5, this.boss.y + 20 );
+
+        if ( this.boss.health >= bossHealth ) {
+          this.physics.arcade.moveToObject( leftBullet, this.player, enemyBulletVelocity );
+          this.physics.arcade.moveToObject( rightBullet, this.player, enemyBulletVelocity );
+
+        } else {
+          this.physics.arcade.moveToXY( leftBullet, this.player.x - i * 30, this.player.y, enemyBulletVelocity );
+          this.physics.arcade.moveToXY( rightBullet, this.player.x + i * 30, this.player.y, enemyBulletVelocity );
+
+        };
+      }
+    }
 
   },
 
@@ -496,6 +531,13 @@ BasicGame.Game.prototype = {
       this.explode( enemy );
       this.addToScore( enemy.reward );
       this.spawnPowerUp( enemy );
+      if ( enemy.key === 'boss' ) {
+        this.enemyPool.destroy();
+        this.shooterPool.destroy();
+        this.bossPool.destroy();
+        this.enemyBulletPool.destroy();
+        this.displayEnd( true );
+      };
     }
 
   },
@@ -509,10 +551,10 @@ BasicGame.Game.prototype = {
       // this.shooterPool.destroy();
       // this.enemyBulletPool.destroy();
       // this.displayEnd( true );
+    } else if ( this.score >= 5000 && this.bossPool.countDead() == 1 ) {
+      this.enemyPool.createMultiple( 60, 'greenEnemy' );
+      this.enemyDelay = 800;
       this.spawnBoss();
-    } else if ( this.score >= 5000 ) {
-      this.enemyPool.createMultiple( 70, 'greenEnemy' );
-      this.enemyDelay = 700;
       // if ( this.concrete && this.concrete.exists ) {
       //   return;
       // } else {
