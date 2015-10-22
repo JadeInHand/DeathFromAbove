@@ -2,11 +2,11 @@
 	<div id="gameContainer"></div>
 	<div id="highscores">
 		<h1>Highscores:</h1>
-		<% @highscores.each do |highscore| %>
-			<ul>
+		<ul>
+			<% @highscores.each do |highscore| %>
 				<li><%= highscore.name.capitalize %> || <%= highscore.score %></li>
-			</ul>
-		<% end %>
+			<% end %>
+		</ul>
 	</div>
 <% else %>
 	<h1> Create new Player Account </h1>
