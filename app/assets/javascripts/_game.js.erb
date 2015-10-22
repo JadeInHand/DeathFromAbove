@@ -4,24 +4,6 @@ BasicGame.Game = function ( game ) {
 
 BasicGame.Game.prototype = {
 
-  preload: function () {
-
-    this.load.image( 'concrete', "<%= image_path 'crackedconcrete.png' %>");
-    this.load.image( 'sea', "<%= image_path 'sea.png' %>" );
-    this.load.image( 'bullet', "<%= image_path 'bullet.png' %>" );
-    this.load.image( 'enemyBullet', "<%= image_path 'enemy-bullet.png' %>" );
-    this.load.image( 'powerup1', "<%= image_path 'powerup1.png' %>" );
-    this.load.spritesheet( 'greenEnemy', "<%= image_path 'enemy.png' %>", 32, 32 );
-    this.load.spritesheet( 'whiteEnemy', "<%= image_path 'shooting-enemy.png' %>", 32, 32 );
-    this.load.spritesheet( 'boss', "<%= image_path 'boss.png' %>", 93, 75 );
-
-    // this.load.spritesheet( 'greenEnemy', "<%= image_path 'mike.png' %>", 42, 32 );
-    // this.load.spritesheet( 'whiteEnemy', "<%= image_path 'jack.png' %>", 42, 32 );
-    // this.load.spritesheet( 'boss', "<%= image_path 'joel.png' %>", 93, 75);
-    this.load.spritesheet( 'explosion', "<%= image_path 'explosion.png' %>", 32, 32 );
-    this.load.spritesheet( 'player', "<%= image_path 'player.png' %>", 64, 64 );
-    
-  },
   create: function () {
 
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -33,6 +15,7 @@ BasicGame.Game.prototype = {
     this.setupExplosions();
     this.setupPlayerIcons();
     this.setupText();
+    this.setupAudio();
 
   },
 
@@ -50,6 +33,17 @@ BasicGame.Game.prototype = {
     this.world.sendToBack( this.concrete );
     this.concrete.tilePosition.y += 0.2;
     
+
+  },
+
+  setupAudio: function () {
+
+    this.sound.volume = 0.2;
+    this.explosionSFX = this.add.audio( 'explosion' );
+    this.playerExplosionSFX = this.add.audio( 'playerExplosion' );
+    this.enemyFireSFX = this.add.audio( 'enemyFire' );
+    this.playerFireSFX = this.add.audio( 'playerFire' );
+    this.powerUpSFX = this.add.audio( 'powerUp' );
 
   },
 
@@ -404,6 +398,7 @@ BasicGame.Game.prototype = {
 
 
     this.nextShotAt = this.time.now + this.shotDelay;
+    this.playerFireSFX.play();
 
     var bulletVelocity = 500;
     var bullet;
@@ -442,12 +437,14 @@ BasicGame.Game.prototype = {
         bullet.reset( enemy.x, enemy.y );
         this.physics.arcade.moveToObject( bullet, this.player, enemyBulletVelocity );
         enemy.nextShotAt = this.time.now + enemyBulletDelay;
+        this.enemyFireSFX.play();
       }
     }, this );
     var bossHealth = 300;
     var enemyBulletVelocity = 150;
     if ( this.bossTime === false && this.boss.alive && this.boss.nextShotAt < this.time.now && this.enemyBulletPool.countDead() >= 10 ) {
       this.boss.nextShotAt = this.time.now + Phaser.Timer.SECOND;
+      this.enemyFireSFX.play();
 
       for ( var i = 0; i < 3; i++) {
         var leftBullet = this.enemyBulletPool.getFirstExists( false );
@@ -487,6 +484,7 @@ BasicGame.Game.prototype = {
     if ( this.ghostUntil && this.ghostUntil > this.time.now ) {
       return;
     };
+    this.playerExplosionSFX.play();
     var ghostTime = Phaser.Timer.SECOND * 3;
     var crashDamage = 5;
     this.damageEnemy( enemy, crashDamage );
@@ -508,6 +506,7 @@ BasicGame.Game.prototype = {
 
     this.addToScore( powerUp.reward );
     powerUp.kill();
+    this.powerUpSFX.play();
     if ( this.weaponLevel < 2 ) {
       this.weaponLevel++;
     }
@@ -529,6 +528,7 @@ BasicGame.Game.prototype = {
       enemy.play('hit');
     } else {
       this.explode( enemy );
+      this.explosionSFX.play();
       this.addToScore( enemy.reward );
       this.spawnPowerUp( enemy );
       if ( enemy.key === 'boss' ) {
@@ -553,7 +553,7 @@ BasicGame.Game.prototype = {
       // this.displayEnd( true );
     } else if ( this.score >= 5000 && this.bossPool.countDead() == 1 ) {
       this.enemyPool.createMultiple( 60, 'greenEnemy' );
-      this.enemyDelay = 800;
+      this.enemyDelay = 850;
       this.spawnBoss();
       // if ( this.concrete && this.concrete.exists ) {
       //   return;
@@ -561,8 +561,8 @@ BasicGame.Game.prototype = {
       //   this.changeBackground();
       // };
     } else if ( this.score >= 2000 ) {
-      this.enemyPool.createMultiple( 60, 'greenEnemy' );
-      this.enemyDelay = 800;
+      this.enemyPool.createMultiple( 55, 'greenEnemy' );
+      this.enemyDelay = 900;
     } else {
       this.enemyPool.createMultiple( 50, 'greenEnemy' );
       this.enemyDelay = 1000;
@@ -589,6 +589,25 @@ BasicGame.Game.prototype = {
                   });
     this.endText.anchor.setTo( 0.5, 0.5 );
     this.showReturn = this.time.now + (Phaser.Timer.SECOND * 2);
+    this.submit = this.add.button( this.game.width / 2, this.game.height / 2 + 150, 'submit' );
+    this.submit.anchor.setTo( 0.5, 0.5 );
+    this.submit.inputEnabled = true;
+    this.submit.onInputDown.add( this.submitScore, this );
+
+  },
+
+  submitScore: function () {
+
+    $.ajax({
+      url: "/highscores",
+      type: "POST",
+      data: {highscore: {
+        name: gon.username,
+        score: this.score
+      }}
+    });
+    location.reload();
+
 
   },
 
@@ -599,6 +618,10 @@ BasicGame.Game.prototype = {
     this.enemyPool.destroy();
     this.bulletPool.destroy();
     this.explosionPool.destroy();
+    this.shooterPool.destroy();
+    this.enemyBulletPool.destroy();
+    this.powerUpPool.destroy();
+    this.bossPool.destroy();
     this.instructions.destroy();
     this.scoreText.destroy();
     this.endText.destroy();
