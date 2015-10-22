@@ -9,17 +9,14 @@
 		</ul>
 	</div>
 <% else %>
-	<h1> Create new Player Account </h1>
+	<h2> Create new Player Account </h2>
 	<div class="user-form">
 		<%= form_for @user, :html => { :multipart => true } do |f| %>
 
   	<div class="field">
-	    <%= f.label :name %><br>
-	    <%= f.text_area :name %>
-  	</div>
-
-  	<div class="field actions">
-    	<%= f.submit %>
+	    <%= f.label :name %>
+	    <%= f.text_field :name %>
+	    <%= f.submit %>
   	</div>
   	<% end %>
   </div>
@@ -30,9 +27,8 @@
 		<div class="form-group">
 		    <%= label_tag :name %>
 		    <%= text_field_tag :name, nil %>
+		    <%= submit_tag "Login" %>
 		</div>
-    
-    <%= submit_tag "Login" %>
     
 	<% end %>
 <% end %>
