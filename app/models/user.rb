@@ -9,7 +9,11 @@
 #
 
 class User < ActiveRecord::Base
-	
+	before_save :downcase_name
 	validates :name, :presence => true, :uniqueness => true
+
+	def downcase_name
+		self.name = name.downcase
+	end
 
 end

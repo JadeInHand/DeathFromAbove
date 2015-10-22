@@ -4,7 +4,7 @@
 		<h1>Highscores:</h1>
 		<% @highscores.each do |highscore| %>
 			<ul>
-				<li><%= highscore.name %> || <%= highscore.score %></li>
+				<li><%= highscore.name.capitalize %> || <%= highscore.score %></li>
 			</ul>
 		<% end %>
 	</div>
