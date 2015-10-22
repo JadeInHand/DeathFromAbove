@@ -167,6 +167,17 @@ BasicGame.Game.prototype = {
     this.nextShotAt = 0;
     this.shotDelay = 175;
 
+    this.bombPool = this.add.group();
+    this.bombPool.enableBody = true;
+    this.bombPool.physicsBodyType = Phaser.Physics.ARCADE;
+    this.bombPool.createMultiple( 2, 'bomb-blast');
+    this.bombPool.setAll( 'anchor.x', 0.5 );
+    this.bombPool.setAll( 'anchor.y', 0.5 );
+    this.bombPool.setAll( 'outOfBoundsKill', true );
+    this.bombPool.setAll( 'checkWorldBounds', true );
+    this.nextBombAt = 0;
+    this.bombDelay = 400;
+
   },
 
   setupExplosions: function () {
@@ -199,11 +210,18 @@ BasicGame.Game.prototype = {
     var playerLives = 3;
     this.lives = this.add.group();
     var firstLifeIconX = this.game.width - 10 - ( playerLives * 30);
-    for ( var i = 0; i < playerLives; i ++ ) {
+    for ( var i = 0; i < playerLives; i++ ) {
       var life = this.lives.create( firstLifeIconX + ( 30 * i ), 30, 'player' );
       life.scale.setTo( 0.5, 0.5 );
       life.anchor.setTo( 0.5, 0.5 );
     };
+    // var bombs = 3;
+    // this.bombsUse = this.add.group();
+    // var firstBombIconX = this.game.width - 680 - ( bombs * 30 );
+    // for ( var i = 0; i < bombs; i++ ) {
+    //   var bomb = this.bombsUse.create( firstBombIconX + ( 30 * i ), 30, 'bomb' );
+    //   bomb.anchor.setTo( 0.5, 0.5 );
+    // };
 
   },
 
@@ -249,6 +267,10 @@ BasicGame.Game.prototype = {
       // Check collision between boss and player
       this.physics.arcade.overlap( this.player, this.bossPool, this.playerHit, null, this );
     };
+    // Check bomb collision with enemies
+    this.physics.arcade.overlap( this.bombPool, this.enemyPool, this.enemyHit, null, this );
+    this.physics.arcade.overlap( this.bombPool, this.shooterPool, this.enemyHit, null, this );
+    this.physics.arcade.overlap( this.bombPool, this.bossPool, this.enemyHit, null, this );
     
   },
 
@@ -330,6 +352,10 @@ BasicGame.Game.prototype = {
 
     if ( this.input.keyboard.isDown(Phaser.Keyboard.Z) || this.input.activePointer.isDown ) {
       this.fire();
+    };
+
+    if ( this.input.keyboard.isDown(Phaser.Keyboard.P)) {
+      this.bombBlast();
     };
 
     if ( this.input.keyboard.isDown(Phaser.Keyboard.X) ) {
@@ -425,6 +451,27 @@ BasicGame.Game.prototype = {
       }
     }
 
+
+  },
+
+  bombBlast: function () {
+
+    var bomb;
+    var bombLength = Phaser.Timer.SECOND * 3;
+    bomb = this.bombPool.getFirstExists( false );
+    if ( this.bombPool.countDead() >= 1 ) {
+      bomb.reset(this.game.width / 2, this.game.height / 2)
+    }
+    this.bombPool.forEach( function (bomb) {
+      bomb.animations.add( 'bomb-blast', [ 0, 0, 0, 0 ], 3000, false );
+    });
+    var bombs = this.bombPool.getFirstExists( false );
+    if ( bombs !== null ) {
+      bombs.kill();
+    };
+    console.log('bomb sent');
+
+
   },
 
   enemyFire: function () {
@@ -451,16 +498,8 @@ BasicGame.Game.prototype = {
         leftBullet.reset( this.boss.x - 5 - i * 5, this.boss.y + 20 );
         var rightBullet = this.enemyBulletPool.getFirstExists( false );
         rightBullet.reset( this.boss.x + 5 + i * 5, this.boss.y + 20 );
-
-        if ( this.boss.health >= bossHealth ) {
-          this.physics.arcade.moveToObject( leftBullet, this.player, enemyBulletVelocity );
-          this.physics.arcade.moveToObject( rightBullet, this.player, enemyBulletVelocity );
-
-        } else {
-          this.physics.arcade.moveToXY( leftBullet, this.player.x - i * 30, this.player.y, enemyBulletVelocity );
-          this.physics.arcade.moveToXY( rightBullet, this.player.x + i * 30, this.player.y, enemyBulletVelocity );
-
-        };
+        this.physics.arcade.moveToObject( leftBullet, this.player, enemyBulletVelocity );
+        this.physics.arcade.moveToObject( rightBullet, this.player, enemyBulletVelocity );
       }
     }
 
@@ -521,6 +560,13 @@ BasicGame.Game.prototype = {
 
   },
 
+  bombHit: function ( bomb, enemy ){
+
+    var bombDamage = 3;
+    this.damageEnemy( enemy, bombDamage )
+
+  },
+
   damageEnemy: function ( enemy, damage ) {
 
     enemy.damage( damage );
@@ -531,13 +577,14 @@ BasicGame.Game.prototype = {
       this.explosionSFX.play();
       this.addToScore( enemy.reward );
       this.spawnPowerUp( enemy );
-      if ( enemy.key === 'boss' ) {
+      if ( enemy.key === boss ) {
         this.enemyPool.destroy();
         this.shooterPool.destroy();
         this.bossPool.destroy();
         this.enemyBulletPool.destroy();
         this.displayEnd( true );
-      };
+      }
+
     }
 
   },
@@ -546,20 +593,17 @@ BasicGame.Game.prototype = {
 
     this.score += gameScore;
     this.scoreText.text = this.score;
-    if ( this.score >= 10000 && this.bossPool.countDead() == 1) {
-      // this.enemyPool.destroy();
-      // this.shooterPool.destroy();
-      // this.enemyBulletPool.destroy();
-      // this.displayEnd( true );
-    } else if ( this.score >= 5000 && this.bossPool.countDead() == 1 ) {
+    if ( this.score >= 30000 && this.bossPool.countDead() === 1) {
+      this.enemyPool.createMultiple( 60, 'greenEnemy' );
+      this.enemyDelay = 800;
+      this.spawnBoss();
+    } else if (this.score >= 25000) {
+      this.shooterPool.createMultiple( 35, 'whiteEnemy' );
+      this.enemyPool.createMultiple( 60, 'greenEnemy' );
+      this.enemyDelay = 800;
+    } else if ( this.score >= 8000 ) {
       this.enemyPool.createMultiple( 60, 'greenEnemy' );
       this.enemyDelay = 850;
-      this.spawnBoss();
-      // if ( this.concrete && this.concrete.exists ) {
-      //   return;
-      // } else {
-      //   this.changeBackground();
-      // };
     } else if ( this.score >= 2000 ) {
       this.enemyPool.createMultiple( 55, 'greenEnemy' );
       this.enemyDelay = 900;
@@ -606,7 +650,7 @@ BasicGame.Game.prototype = {
         score: this.score
       }}
     });
-    location.reload();
+    location.reload().delay( 2000 );
 
 
   },

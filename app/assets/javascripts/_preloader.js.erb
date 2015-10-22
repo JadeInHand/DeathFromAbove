@@ -32,6 +32,8 @@ BasicGame.Preloader.prototype = {
     // this.load.spritesheet( 'greenEnemy', "<%= image_path 'mike.png' %>", 42, 32 );
     // this.load.spritesheet( 'whiteEnemy', "<%= image_path 'jack.png' %>", 42, 32 );
     // this.load.spritesheet( 'boss', "<%= image_path 'joel.png' %>", 93, 75);
+    this.load.spritesheet('bomb', "<%= image_path 'bomb.png' %>", 32, 32 );
+    this.load.spritesheet('bomb-blast', "<%= image_path 'bomb-blast.png' %>", 800, 600);
     this.load.spritesheet('explosion', "<%= image_path 'explosion.png' %>", 32, 32);
     this.load.spritesheet('player', "<%= image_path 'player.png' %>", 64, 64);
     this.load.audio('explosion', [ "<%= asset_path 'explosion', type: 'ogg'%>", "<%= asset_path 'explosion', type: 'wav'%>" ]);
