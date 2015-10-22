@@ -577,7 +577,7 @@ BasicGame.Game.prototype = {
       this.explosionSFX.play();
       this.addToScore( enemy.reward );
       this.spawnPowerUp( enemy );
-      if ( enemy.key === boss ) {
+      if ( enemy.key === 'boss' ) {
         this.enemyPool.destroy();
         this.shooterPool.destroy();
         this.bossPool.destroy();
