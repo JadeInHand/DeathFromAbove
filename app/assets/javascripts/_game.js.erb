@@ -593,7 +593,7 @@ BasicGame.Game.prototype = {
 
     this.score += gameScore;
     this.scoreText.text = this.score;
-    if ( this.score >= 40000 && this.bossPool.countDead() === 1) {
+    if ( this.score >= 30000 && this.bossPool.countDead() === 1) {
       this.enemyPool.createMultiple( 60, 'greenEnemy' );
       this.enemyDelay = 800;
       this.spawnBoss();
