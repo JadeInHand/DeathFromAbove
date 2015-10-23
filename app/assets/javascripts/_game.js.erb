@@ -593,11 +593,11 @@ BasicGame.Game.prototype = {
 
     this.score += gameScore;
     this.scoreText.text = this.score;
-    if ( this.score >= 30000 && this.bossPool.countDead() === 1) {
+    if ( this.score >= 40000 && this.bossPool.countDead() === 1) {
       this.enemyPool.createMultiple( 60, 'greenEnemy' );
       this.enemyDelay = 800;
       this.spawnBoss();
-    } else if (this.score >= 25000) {
+    } else if (this.score >= 15000) {
       this.shooterPool.createMultiple( 35, 'whiteEnemy' );
       this.enemyPool.createMultiple( 60, 'greenEnemy' );
       this.enemyDelay = 800;
