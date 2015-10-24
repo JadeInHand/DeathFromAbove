@@ -10,10 +10,10 @@ https://fast-scrubland-6900.herokuapp.com/
 
 === What was used?
 
--- Javascript (incl jQuery)
--- Phaser
--- Ruby on Rails (for Highscore support)
--- Heroku 
+-- Javascript (incl jQuery)   
+-- Phaser  
+-- Ruby on Rails (for Highscore support)  
+-- Heroku   
 
 ---
 
