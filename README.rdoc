@@ -6,6 +6,7 @@ https://fast-scrubland-6900.herokuapp.com/
 
 -- This is an arcade style shooting game made following online tutorials and explanations of the Phaser library.
 
+---
 
 === What was used?
 
