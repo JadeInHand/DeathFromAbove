@@ -10,37 +10,37 @@ https://fast-scrubland-6900.herokuapp.com/
 
 === What was used?
 
-# * Javascript (incl jQuery)   
-# * Phaser  
-# * Ruby on Rails (for Highscore support)  
-# * Heroku   
+- Javascript (incl jQuery)   
+- Phaser  
+- Ruby on Rails (for Highscore support)  
+- Heroku   
 
 ---
 
 === The Game
 
-#-- The game itself has two different versions. The General Assembly WDI-10 version which uses sprites made by myself of the teachers of our course. The second version is with the phaser provided sprites! You can switch these versions by editing the preloader and game files. The sprite animation calls need to be switched around in the _game.js.erb file. As well as the _preloader.js.erb needs to be changed to the wanted sprites.
-#-- Highscores are stored and displayed on the homepage.
-#-- You must create an account in order to play the game so that the name provided can be used to store the highscore.
-#-- Controls for basic game functions are the arrows for movement and Z to fire at enemies.
+- The game itself has two different versions. The General Assembly WDI-10 version which uses sprites made by myself of the teachers of our course. The second version is with the phaser provided sprites! You can switch these versions by editing the preloader and game files. The sprite animation calls need to be switched around in the _game.js.erb file. As well as the _preloader.js.erb needs to be changed to the wanted sprites.
+- Highscores are stored and displayed on the homepage.
+- You must create an account in order to play the game so that the name provided can be used to store the highscore.
+- Controls for basic game functions are the arrows for movement and Z to fire at enemies.
 
 ---
 
 === Bugs
 
-#-- There is a memory bleed currently in the game related to enemy/boss bullets. Still trying to find an appropriate solution to this problem.
+- There is a memory bleed currently in the game related to enemy/boss bullets. Still trying to find an appropriate solution to this problem.
 
 ---
 
 === Unfinished
 
-#-- Half implemented player bombs. (will finish)
+- Half implemented player bombs. (will finish)
 
 ---
 
 === Still too come
 
-#-- New enemies, a few tweaks of enemy attacking mechanics.
+- New enemies, a few tweaks of enemy attacking mechanics.
 
 
 
