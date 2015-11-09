@@ -9,7 +9,7 @@
 <body>
 	<nav>
 		<% if @current_user %>
-			<li><%= link_to "Welcome #{ @current_user.name.capitalize }!(logout)", login_path, :method => :delete, :data => {:confirm => "Are you sure you wish to logout?"} %></li>
+			<%= link_to "Welcome #{ @current_user.name.capitalize }!(logout)", login_path, :method => :delete, :data => {:confirm => "Are you sure you wish to logout?"} %>
 		<% end %>
 	</nav>
 	<%= include_gon %>

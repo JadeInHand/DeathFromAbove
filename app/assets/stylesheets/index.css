@@ -6,9 +6,12 @@ body {
 }
 
 #highscores {
-	left: 45%;
 	text-align: center;
 	color: white;
+	padding: 0px, 0px, 10px, 0px;
+	width: 300px;
+	position: absolute;
+	left: 40%;
 }
 
 #highscores ul li {

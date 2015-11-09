@@ -1,7 +1,7 @@
 <% if @current_user && @current_user.present? %>
 	<div id="gameContainer"></div>
 	<div id="highscores">
-		<h1>Highscores:</h1>
+		<h1>Hall of Fame :</h1>
 		<ul>
 			<% @highscores.each do |highscore| %>
 				<li><%= highscore.name.capitalize %> || <%= highscore.score %></li>
